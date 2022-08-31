@@ -19,7 +19,8 @@ func (c Welcome) OpeartionStep() {
 	fmt.Printf("%6s\n", "***************************************")
 	fmt.Printf("%6s\n", "***  请选择要执行的操作。   ***")
 	fmt.Printf("%6s\n", "***  1，解密指定文件内容 。 ***")
-	fmt.Printf("%6s\n", "***  2，生成公钥私钥。     ***")
+	fmt.Printf("%6s\n", "***  21，加密指定文件内容 。***")
+	fmt.Printf("%6s\n", "***  99，生成公钥私钥。    ***")
 	fmt.Printf("%6s\n", "***************************************")
 	fmt.Println("请输入内容:")
 }
@@ -33,11 +34,21 @@ func (c Welcome) RsaGenerateStep() {
 	time.Sleep(time.Second * 2)
 }
 
-func (c Welcome)RsaDecryptStep() {
-	fmt.Printf("%6s\n", "***************************************************")
-	fmt.Printf("%6s\n", "***  请把需要解密的文件防至到decrypt/request文件夹下。 ***")
-	fmt.Printf("%6s\n", "***  请把密钥文件放至到decrypt文件夹下。              ***")
-	fmt.Printf("%6s\n", "***  请等待，解密文件生成。                          ***")
-	fmt.Printf("%6s\n", "***************************************************")
+func (c Welcome) RsaEncryptStep() {
+	fmt.Printf("%6s\n", "************************************************")
+	fmt.Printf("%6s\n", "***  请把需要加密的文件防至到docs/request文件夹下。 ***")
+	fmt.Printf("%6s\n", "***  请确认密钥文件放至在etc文件夹下。             ***")
+	fmt.Printf("%6s\n", "***  请等待，加密文件生成。                      ***")
+	fmt.Printf("%6s\n", "************************************************")
+	time.Sleep(time.Second * 2)
+}
+
+
+func (c Welcome) RsaDecryptStep() {
+	fmt.Printf("%6s\n", "*************************************************")
+	fmt.Printf("%6s\n", "***  请把需要解密的文件防至到docs/request文件夹下。  ***")
+	fmt.Printf("%6s\n", "***  请确认密钥文件放至在etc文件夹下。              ***")
+	fmt.Printf("%6s\n", "***  请等待，解密文件生成。                       ***")
+	fmt.Printf("%6s\n", "*************************************************")
 	time.Sleep(time.Second * 2)
 }

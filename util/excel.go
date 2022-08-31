@@ -61,7 +61,10 @@ func GenerateExcel(dynamicInfo DynamicExcelBuilderDto) {
 	// Test max characters in a cell.
 	sheethead := []interface{}{
 	}
-	sheethead = append(sheethead, dynamicInfo.Columns)
+	for _, column := range dynamicInfo.Columns {
+		sheethead=append(sheethead,column)
+	}
+
 	cell, _ := excelize.CoordinatesToCellName(1, 1)
 	streamWriter.SetRow(cell, sheethead)
 
@@ -94,7 +97,6 @@ func GenerateExcel(dynamicInfo DynamicExcelBuilderDto) {
 	})
 	_ = file.SetCellStyle("Sheet1", "A1", "A1", style2)
 
-	println("33 数据处理---%s", time.Now().Format("2006-01-02 15:04:05"))
 	for i, obj := range dynamicInfo.Values {
 		cell, _ := excelize.CoordinatesToCellName(1, i+2)
 		tmp := []interface{}{}
@@ -103,13 +105,11 @@ func GenerateExcel(dynamicInfo DynamicExcelBuilderDto) {
 		}
 		streamWriter.SetRow(cell, tmp)
 	}
-	println("33 数据处理---%s", time.Now().Format("2006-01-02 15:04:05"))
 
 	streamWriter.Flush()
 	// Save spreadsheet by the given path.
 
 	save_path := filepath.Join(rootDir, fileName)
 	file.SaveAs(save_path)
-	println("44 数据存储---", time.Now().Format("2006-01-02 15:04:05"))
 	return
 }

@@ -9,7 +9,6 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"errors"
-	"fmt"
 	"log"
 	"strings"
 )
@@ -104,7 +103,6 @@ func Decrypt(key *rsa.PrivateKey, input []string) []string {
 	for _, s := range input {
 		str2,_:=base64.RawURLEncoding.DecodeString(strings.Split(s, "tx2022")[0])
 		encryptedBytes := []byte(str2)
-		fmt.Println("encrypted encryptedBytesAgain: ", encryptedBytes)
 		decryptedBytes, err := key.Decrypt(nil, encryptedBytes, &rsa.OAEPOptions{Hash: crypto.SHA512})
 		if err != nil {
 			//log.Fatalln("信息异常"+s, err)
