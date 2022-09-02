@@ -82,6 +82,12 @@ func ParseRsaPublicKeyFromPemStr(pubPEM string) (*rsa.PublicKey, error) {
 func Encrypt(key *rsa.PublicKey, input []string) []string {
 	result := []string{}
 	for _, s := range input {
+		if s == "" {
+			//no message no encrypt
+			result = append(result, "")
+			continue
+		}
+
 		encryptedBytes, err := rsa.EncryptOAEP(
 			sha512.New(),
 			rand.Reader,
@@ -101,7 +107,11 @@ func Encrypt(key *rsa.PublicKey, input []string) []string {
 func Decrypt(key *rsa.PrivateKey, input []string) []string {
 	result := []string{}
 	for _, s := range input {
-		str2,_:=base64.RawURLEncoding.DecodeString(strings.Split(s, "tx2022")[0])
+		if s == "" {
+			result = append(result, "")
+			continue
+		}
+		str2, _ := base64.RawURLEncoding.DecodeString(strings.Split(s, "tx2022")[0])
 		encryptedBytes := []byte(str2)
 		decryptedBytes, err := key.Decrypt(nil, encryptedBytes, &rsa.OAEPOptions{Hash: crypto.SHA512})
 		if err != nil {

@@ -20,7 +20,7 @@ type DynamicExcelBuilderDto struct {
 
 //获取excel的行
 func GetExcelRows(localPath string) ([][]string, error) {
-	if !strings.Contains(localPath, ".xlsx") {
+	if !(strings.Contains(localPath, ".xlsx") ) {
 		log.Fatalln("getFileRows 文件后缀异常")
 		return nil, nil
 	}
@@ -62,7 +62,7 @@ func GenerateExcel(dynamicInfo DynamicExcelBuilderDto) {
 	sheethead := []interface{}{
 	}
 	for _, column := range dynamicInfo.Columns {
-		sheethead=append(sheethead,column)
+		sheethead = append(sheethead, column)
 	}
 
 	cell, _ := excelize.CoordinatesToCellName(1, 1)

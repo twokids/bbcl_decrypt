@@ -13,6 +13,8 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
+	"time"
 )
 
 func main() {
@@ -85,23 +87,65 @@ func rsaDecrypt() {
 
 		//读取excel的row。转化解析后的值
 		onceCount := 500
+		curDynamicInfoChan := make(chan []string)
 		for i := 0; i <= len(rows)/onceCount; i++ {
-			maxJCount := (i + 1) * onceCount
-			if len(rows) > i*onceCount && len(rows) < (i+1)*onceCount {
-				maxJCount = len(rows)
-			}
-			for j := i * onceCount; j < maxJCount; j++ {
-				if i == 0 && j == 0 {
-					//标题不处理
-					continue
-				}
-				dynamicInfo.Values = append(dynamicInfo.Values, util.Decrypt(privateKey, rows[j]))
-			}
+			t1 := time.Now()
+			elapsed1 := time.Since(t1)
+			//方法一
+			//maxJCount := (i + 1) * onceCount
+			//if len(rows) > i*onceCount && len(rows) < (i+1)*onceCount {
+			//	maxJCount = len(rows)
+			//}
+			//for j := i * onceCount; j < maxJCount; j++ {
+			//	if i == 0 && j == 0 {
+			//		//标题不处理
+			//		continue
+			//	}
+			//	dynamicInfo.Values = append(dynamicInfo.Values, util.Decrypt(privateKey, rows[j]))
+			//}
+
+			//方法二
+			dynamicInfo.Values = rsaDecryptSave(rows, privateKey, i, onceCount, curDynamicInfoChan)
+
+			elapsed1 = time.Since(t1)
+			fmt.Printf("当前解密行参 onceCount:%v , i:%v , 执行时长:%v  \n", onceCount, i, elapsed1)
 		}
 		//保存到excel
 		util.GenerateExcel(dynamicInfo)
 	}
 	return
+}
+
+func rsaDecryptSave(rows [][]string, privateKey *rsa.PrivateKey, i int, onceCount int, inputChan chan []string) [][]string {
+	wg := sync.WaitGroup{}
+	ch := make(chan struct{}, 10) // 控制协程数量
+
+	maxJCount := (i + 1) * onceCount
+	if len(rows) > i*onceCount && len(rows) < (i+1)*onceCount {
+		maxJCount = len(rows)
+	}
+	tmpValues := [][]string{}
+	for j := i * onceCount; j < maxJCount; j++ {
+		if i == 0 && j == 0 {
+			//标题不处理
+			continue
+		}
+		wg.Add(1)
+		ch <- struct{}{}
+		go func(row []string) {
+			defer func() {
+				<-ch
+				wg.Done()
+			}()
+			tmpV := util.Decrypt(privateKey, row)
+			inputChan <- tmpV
+			tmpValues = append(tmpValues, tmpV)
+
+		}(rows[j])
+	}
+	wg.Wait()
+	close(ch) //释放ch
+	return tmpValues
 }
 
 func rsaEecrypt() {
