@@ -60,7 +60,7 @@ func initDB(dsn string) (err error) {
 }
 
 func main1() {
-	dsn := "chunjiewang:wcjSa57983@tcp(bbcl-customer-data-services.mysql.polardb.rds.aliyuncs.com:3306)/bbcl_channel_docking?charset=utf8mb4"
+	dsn := "test:111111@tcp(127.0.0.1:3306)/test?charset=utf8mb4"
 	initDB(dsn)
 
 	err, ct := count("select count(*) from ks_order_info_v2_copy1")

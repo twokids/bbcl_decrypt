@@ -31,7 +31,7 @@ func (c Welcome) RsaGenerateStep() {
 	fmt.Printf("%6s\n", "   公钥提供给使用方")
 	fmt.Printf("%6s\n", "   私钥用于解密密文")
 	fmt.Printf("%6s\n", "***************************************")
-	time.Sleep(time.Second * 6)
+	time.Sleep(time.Second * 8)
 }
 
 func (c Welcome) RsaEncryptStep() {
@@ -41,7 +41,6 @@ func (c Welcome) RsaEncryptStep() {
 	fmt.Printf("%6s\n", "   请等待，加密文件生成。")
 	fmt.Printf("%6s\n", "   加密文件生成至docs/response文件夹下。")
 	fmt.Printf("%6s\n", "************************************************")
-	time.Sleep(time.Second * 8)
 }
 
 

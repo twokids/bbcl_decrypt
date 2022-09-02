@@ -87,7 +87,7 @@ func rsaDecrypt() {
 
 		//读取excel的row。转化解析后的值
 		onceCount := 500
-		curDynamicInfoChan := make(chan []string)
+		println("解密中~~~")
 		for i := 0; i <= len(rows)/onceCount; i++ {
 			t1 := time.Now()
 			elapsed1 := time.Since(t1)
@@ -105,7 +105,12 @@ func rsaDecrypt() {
 			//}
 
 			//方法二
-			dynamicInfo.Values = rsaDecryptSave(rows, privateKey, i, onceCount, curDynamicInfoChan)
+			curDynamicInfoChan := make(chan []string, 1000)
+			rsaDecryptSave(rows, privateKey, i, onceCount, curDynamicInfoChan)
+			close(curDynamicInfoChan) //释放ch
+			for curV := range curDynamicInfoChan {
+				dynamicInfo.Values = append(dynamicInfo.Values, curV)
+			}
 
 			elapsed1 = time.Since(t1)
 			fmt.Printf("当前解密行参 onceCount:%v , i:%v , 执行时长:%v  \n", onceCount, i, elapsed1)
@@ -116,7 +121,7 @@ func rsaDecrypt() {
 	return
 }
 
-func rsaDecryptSave(rows [][]string, privateKey *rsa.PrivateKey, i int, onceCount int, inputChan chan []string) [][]string {
+func rsaDecryptSave(rows [][]string, privateKey *rsa.PrivateKey, i int, onceCount int, curDynamicInfoChan chan []string) {
 	wg := sync.WaitGroup{}
 	ch := make(chan struct{}, 10) // 控制协程数量
 
@@ -124,7 +129,6 @@ func rsaDecryptSave(rows [][]string, privateKey *rsa.PrivateKey, i int, onceCoun
 	if len(rows) > i*onceCount && len(rows) < (i+1)*onceCount {
 		maxJCount = len(rows)
 	}
-	tmpValues := [][]string{}
 	for j := i * onceCount; j < maxJCount; j++ {
 		if i == 0 && j == 0 {
 			//标题不处理
@@ -137,15 +141,12 @@ func rsaDecryptSave(rows [][]string, privateKey *rsa.PrivateKey, i int, onceCoun
 				<-ch
 				wg.Done()
 			}()
-			tmpV := util.Decrypt(privateKey, row)
-			inputChan <- tmpV
-			tmpValues = append(tmpValues, tmpV)
-
+			curDynamicInfoChan <- util.Decrypt(privateKey, row)
 		}(rows[j])
 	}
 	wg.Wait()
 	close(ch) //释放ch
-	return tmpValues
+	return
 }
 
 func rsaEecrypt() {
