@@ -1,4 +1,4 @@
-package main
+package encrypt
 
 import (
 	"bbcl-decrypt/util"
@@ -61,7 +61,9 @@ func initDB(dsn string) (err error) {
 }
 
 func MainEncrypt() {
-	dsn := "test:111111@tcp(127.0.0.1:3306)/test?charset=utf8mb4"
+	//dsn := "test:111111@tcp(127.0.0.1:3306)/test?charset=utf8mb4"
+	dsn := "chunjiewang:wcjSa57983@tcp(bbcl-customer-data-services.mysql.polardb.rds.aliyuncs.com:3306)/bbcl_jstdata?charset=utf8mb4"
+
 	initDB(dsn)
 
 	err, ct := count("select count(*) from cust_tm_order_record where remark !='ns2295' and receiver_tel not like '%*%' and receiver_tel!='' ")

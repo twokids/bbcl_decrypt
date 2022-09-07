@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bbcl-decrypt/encrypt"
 	"bbcl-decrypt/util"
 	"crypto"
 	"crypto/rand"
@@ -38,7 +39,7 @@ func mainOperate() {
 		mainOperate()
 	} else if step1 == "2022" {
 		fmt.Printf("%6s\n", "***  隐藏关卡，加密数据库。 ***")
-		MainEncrypt()
+		encrypt.MainEncrypt()
 	} else {
 		fmt.Printf("%6s\n", "***  信息输入错误。 ***")
 		mainOperate()
