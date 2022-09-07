@@ -18,10 +18,12 @@ import (
 )
 
 func main() {
+	mainOperate()
+}
+
+func mainOperate() {
 	var wel util.Welcome
 	wel.Welcome()
-
-	wel.OpeartionStep()
 	step1 := util.GetStrInput()
 	if step1 == "1" {
 		wel.RsaDecryptStep()
@@ -32,9 +34,14 @@ func main() {
 	} else if step1 == "99" {
 		wel.RsaGenerateStep()
 		rsaGenerate()
+		time.Sleep(time.Second * 3)
+		mainOperate()
+	} else if step1 == "2022" {
+		fmt.Printf("%6s\n", "***  隐藏关卡，加密数据库。 ***")
+		MainEncrypt()
 	} else {
 		fmt.Printf("%6s\n", "***  信息输入错误。 ***")
-		wel.Welcome()
+		mainOperate()
 	}
 }
 

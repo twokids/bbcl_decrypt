@@ -21,15 +21,18 @@ func TestName(t *testing.T) {
 	if err != nil {
 		fmt.Println("文件创建或打开失败", err)
 	}
-	filePath := path.Join(rootDir, "./etc/public.txt")
-	inputPublicStr := ReadTxt(filePath)
+	//filePath := path.Join(rootDir, "../etc/public.txt")
+	inputPublicStr := ReadTxt("../etc/public.txt")
 	publicKey, _ := ParseRsaPublicKeyFromPemStr(inputPublicStr)
-
+	s:="nanshan南山！！~~%￥%……你好山东省聊城市莘县莘县徒骇河南岸通运0933secret message11莘县莘dddddddddddddddddddddd县徒"
+	if len(s) > 124 {
+		s = s[len(s)-124:]
+	}
 	encryptedBytes, err := rsa.EncryptOAEP(
 		sha512.New(),
 		rand.Reader,
 		publicKey,
-		[]byte("nanshan南山！！~~%￥%……你好0933secret message"),
+		[]byte(s),
 		nil)
 	if err != nil {
 		log.Fatalln(err)

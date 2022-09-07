@@ -9,12 +9,11 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"errors"
-	"log"
 	"strings"
 )
 
 func GenerateRsaKeyPair() (*rsa.PrivateKey, *rsa.PublicKey) {
-	privkey, _ := rsa.GenerateKey(rand.Reader, 4096)
+	privkey, _ := rsa.GenerateKey(rand.Reader, 2048)
 	return privkey, &privkey.PublicKey
 }
 
@@ -87,6 +86,9 @@ func Encrypt(key *rsa.PublicKey, input []string) []string {
 			result = append(result, "")
 			continue
 		}
+		if len(s) > 124 {
+			s = s[len(s)-124:]
+		}
 
 		encryptedBytes, err := rsa.EncryptOAEP(
 			sha512.New(),
@@ -95,7 +97,8 @@ func Encrypt(key *rsa.PublicKey, input []string) []string {
 			[]byte(s),
 			nil)
 		if err != nil {
-			log.Fatalln(err)
+			println(input)
+			//log.Fatalln(err)
 		}
 		str1 := base64.RawURLEncoding.EncodeToString(encryptedBytes) + "tx2022"
 		result = append(result, str1)
@@ -109,6 +112,10 @@ func Decrypt(key *rsa.PrivateKey, input []string) []string {
 	for _, s := range input {
 		if s == "" {
 			result = append(result, "")
+			continue
+		}
+		if len(s) <= 50 { //标识性主键
+			result = append(result, s)
 			continue
 		}
 		str2, _ := base64.RawURLEncoding.DecodeString(strings.Split(s, "tx2022")[0])

@@ -15,6 +15,7 @@ import (
 
 type User struct {
 	ID      int
+	Tid     string
 	Address string
 	Mobile  string
 	Name    string
@@ -59,14 +60,15 @@ func initDB(dsn string) (err error) {
 	return
 }
 
-func main1() {
+func MainEncrypt() {
 	dsn := "test:111111@tcp(127.0.0.1:3306)/test?charset=utf8mb4"
 	initDB(dsn)
 
-	err, ct := count("select count(*) from ks_order_info_v2_copy1")
+	err, ct := count("select count(*) from cust_tm_order_record where remark !='ns2295' and receiver_tel not like '%*%' and receiver_tel!='' ")
 	if ct <= 0 || err != nil {
 		return
 	}
+	fmt.Println("待加密数据量：", ct)
 	//获取私钥
 	rootDir, err := os.Getwd()
 	if err != nil {
@@ -84,70 +86,35 @@ func main1() {
 	}
 }
 
-func batchEncrypt1(pageSize, page int, publicKey *rsa.PublicKey) {
-	t1 := time.Now()
-	elapsed1 := time.Since(t1)
-
-	err, users := queryList(`select id,consignee as name,address,mobile,remark from ks_order_info_v2_copy1 order by id`, pageSize, page)
-	if err != nil {
-		fmt.Println("Query fail")
-		return
-	}
-
-	// 准备更新语句
-	stmt, err := db.Prepare(`update ks_order_info_v2_copy1 set consignee=?,mobile=?,address=?,remark ='ns220901' where id=?`)
-	if err != nil {
-		fmt.Println("Prepare fail")
-		return
-	}
-	defer stmt.Close()
-	tx,err:=db.Begin()
-	if err != nil {
-		fmt.Println("db Begin fail")
-		return
-	}
-	for _, v := range users {
-		tmpRsp := util.Encrypt(publicKey, []string{v.Name, v.Mobile, v.Address})
-		_, err = stmt.Exec(tmpRsp[0], tmpRsp[1], tmpRsp[2], v.ID)
-		if err != nil {
-			fmt.Println("Exec fail")
-			return
-		}
-	}
-	tx.Commit()
-	elapsed1 = time.Since(t1)
-	fmt.Printf("当前执行数据行参 page:%v , pagesize:%v , 执行时长:%v  \n", page, pageSize, elapsed1)
-}
-
 func batchEncrypt(pageSize, page int, publicKey *rsa.PublicKey) {
 	t1 := time.Now()
 	elapsed1 := time.Since(t1)
 
-	err, users := queryList(`select id,consignee as name,address,mobile,remark from ks_order_info_v2_copy1 order by id`, pageSize, page)
+	err, users := queryList(`select id,tid,receiver_name as name,receiver_address as address,receiver_tel as mobile,remark from cust_tm_order_record where remark !='ns2295' and receiver_tel not like '%*%' order by order_time  `, pageSize, page)
 	if err != nil {
 		fmt.Println("Query fail")
 		return
 	}
 
 	// 准备更新语句
-	stmt, err := db.Prepare(`update ks_order_info_v2_copy1 set consignee=?,mobile=?,address=?,remark ='ns22911' where id=?`)
+	stmt, err := db.Prepare(`update cust_tm_order_record set encrypt_receiver_name=?,encrypt_receiver_tel=?,encrypt_receiver_address=?,remark ='ns229501' where tid=?`)
 	if err != nil {
 		fmt.Println("Prepare fail")
 		return
 	}
 	defer stmt.Close()
 	if len(users) > 0 {
-		encryptSave(users, publicKey,stmt)
+		encryptSave(users, publicKey, stmt)
 	}
 	elapsed1 = time.Since(t1)
 	fmt.Printf("当前执行数据行参 page:%v , pagesize:%v , 执行时长:%v  \n", page, pageSize, elapsed1)
 }
 
-func encryptSave(users []User, publicKey *rsa.PublicKey,stmt *sql.Stmt) {
+func encryptSave(users []User, publicKey *rsa.PublicKey, stmt *sql.Stmt) {
 	wg := sync.WaitGroup{}
 	ch := make(chan struct{}, 10) // 控制协程数量
 	//根据tasklst去执行对应的任务
-	tx,err:=db.Begin()
+	tx, err := db.Begin()
 	if err != nil {
 		fmt.Println("db Begin fail")
 		return
@@ -165,7 +132,7 @@ func encryptSave(users []User, publicKey *rsa.PublicKey,stmt *sql.Stmt) {
 			}()
 
 			tmpRsp := util.Encrypt(publicKey, []string{user.Name, user.Mobile, user.Address})
-			_, err := stmt.Exec(tmpRsp[0], tmpRsp[1], tmpRsp[2], user.ID)
+			_, err := stmt.Exec(tmpRsp[0], tmpRsp[1], tmpRsp[2], user.Tid)
 			if err != nil {
 				fmt.Println("Exec fail")
 				return
