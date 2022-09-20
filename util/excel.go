@@ -34,7 +34,8 @@ func GetExcelRows(localPath string) ([][]string, error) {
 			log.Fatalln("Filetodblogic getExcelRows Close 异常", err)
 		}
 	}()
-	rows, err := f.GetRows("Sheet1")
+	sheetName:=f.GetSheetName(0)
+	rows, err := f.GetRows(sheetName)
 	if err != nil {
 		log.Fatalln("Filetodblogic getExcelRows GetRows 异常", err)
 		return nil, err
