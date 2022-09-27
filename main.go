@@ -37,6 +37,9 @@ func mainOperate() {
 		rsaGenerate()
 		time.Sleep(time.Second * 3)
 		mainOperate()
+	} else if step1 == "md5" {
+		fmt.Printf("%6s\n", "***  隐藏关卡，加密数据库。 ***")
+		encrypt.Md5Decrypt()
 	} else if step1 == "2022" {
 		fmt.Printf("%6s\n", "***  隐藏关卡，加密数据库。 ***")
 		encrypt.MainEncrypt()
