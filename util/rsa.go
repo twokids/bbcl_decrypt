@@ -80,12 +80,24 @@ func ParseRsaPublicKeyFromPemStr(pubPEM string) (*rsa.PublicKey, error) {
 //加密
 func Encrypt(key *rsa.PublicKey, input []string) []string {
 	result := []string{}
-	for _, s := range input {
-		if s == "" {
+	for i, s := range input {
+		if s == "" { //|| len(s) > 220 {//220 是为了应对抖音密文和明文存储在一起的问题
 			//no message no encrypt
 			result = append(result, "")
 			continue
 		}
+		if i == 0 && len(s) > 50 { //50 姓名贼长，不合理，不处理
+			//no message no encrypt
+			result = append(result, "")
+			continue
+		}
+		if i == 1 && len(s) != 11 { //11 非正经手机号，不合理，不处理
+			//no message no encrypt
+			result = append(result, "")
+			continue
+		}
+
+
 		if len(s) > 124 {
 			s = s[len(s)-124:]
 		}

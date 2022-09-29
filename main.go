@@ -13,6 +13,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -38,9 +39,9 @@ func mainOperate() {
 		time.Sleep(time.Second * 3)
 		mainOperate()
 	} else if step1 == "md5" {
-		fmt.Printf("%6s\n", "***  隐藏关卡，加密数据库。 ***")
+		fmt.Printf("%6s\n", "***  隐藏关卡，md5加密数据。 ***")
 		encrypt.Md5Decrypt()
-	} else if step1 == "2022" {
+	} else if step1 == "rsa" {
 		fmt.Printf("%6s\n", "***  隐藏关卡，加密数据库。 ***")
 		encrypt.MainEncrypt()
 	} else {
@@ -98,7 +99,7 @@ func rsaDecrypt() {
 
 		//读取excel的row。转化解析后的值
 		onceCount := 500
-		println("解密中~~~")
+		println(file + "数据量：" + strconv.Itoa(len(rows)) + "，解密中~~~")
 		for i := 0; i <= len(rows)/onceCount; i++ {
 			t1 := time.Now()
 			elapsed1 := time.Since(t1)
